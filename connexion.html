@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Connexion Partenaires Mimetism</title>
+<meta name="description" content="Connexion à l'espace partenaire Mimetism.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700;900&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700&family=Space+Mono:wght@400;700&display=swap">
+<link rel="stylesheet" href="partenaire.css">
+<style>
+.login{min-height:100vh;min-height:100dvh;display:grid;grid-template-columns:1fr 1fr}
+.pitch{position:relative;overflow:hidden;background:var(--side);color:var(--side-fg);display:flex;flex-direction:column;justify-content:space-between;gap:40px;padding-block:36px;padding-left:max(32px, env(safe-area-inset-left,0px));padding-right:32px}
+.pitch h1{font-size:clamp(30px,3.6vw,50px);font-weight:900;max-width:14ch;position:relative;z-index:2}
+.pitch h1 span{color:var(--yellow)}
+.pitch ul{list-style:none;padding:0;margin:22px 0 0;display:grid;gap:12px;position:relative;z-index:2}
+.pitch li{display:flex;gap:12px;align-items:center;color:var(--side-muted)}
+.pitch li b{flex:none;width:30px;height:30px;border-radius:9px;display:grid;place-items:center;color:#17132A;font:700 14px var(--f-mono);border:2px solid var(--side-fg)}
+.pitch li:nth-child(1) b{background:var(--yellow)} .pitch li:nth-child(2) b{background:var(--mint)} .pitch li:nth-child(3) b{background:var(--pink)}
+.pitch .foot{color:var(--side-muted);font-size:13px;position:relative;z-index:2}
+.blob{position:absolute;border-radius:50%;filter:blur(60px);opacity:.5;pointer-events:none}
+.b1{width:320px;height:320px;background:var(--pink);right:-100px;top:-60px;animation:drift 12s ease-in-out infinite}
+.b2{width:280px;height:280px;background:var(--blue);left:-80px;bottom:-100px;animation:drift 14s ease-in-out infinite reverse}
+@keyframes drift{50%{transform:translate(30px,40px) scale(1.15)}}
+.coin{position:absolute;right:28px;bottom:56px;width:120px;height:120px;border-radius:50%;background:var(--yellow);border:3px solid var(--side-fg);display:grid;place-items:center;color:#17132A;font:900 15px/1.1 var(--f-display);text-align:center;box-shadow:5px 5px 0 var(--pink);animation:wob 4s ease-in-out infinite;z-index:1}
+.coin b{display:block;font-size:22px}
+@keyframes wob{50%{transform:rotate(-12deg) translateY(-10px)}}
+
+.formside{display:grid;place-items:center;padding-block:40px;padding-left:max(16px, env(safe-area-inset-left,0px));padding-right:max(16px, env(safe-area-inset-right,0px))}
+.card{width:100%;max-width:420px;background:var(--surface);border:3px solid var(--line);border-radius:26px;box-shadow:8px 8px 0 var(--sh);padding:32px;display:flex;flex-direction:column;gap:18px;animation:in .6s cubic-bezier(.2,1.3,.4,1) both}
+@keyframes in{from{opacity:0;transform:translateY(30px) rotate(-2deg)}}
+.card h2{font-size:26px}
+.card .sub{color:var(--muted);margin-top:-8px}
+.row{display:flex;justify-content:space-between;align-items:center;gap:10px;font-size:14px;flex-wrap:wrap}
+.row label{display:flex;gap:8px;align-items:center;font-weight:500}
+.row a{color:var(--muted)}
+.card .btn{width:100%;padding:15px}
+.or{display:flex;align-items:center;gap:12px;color:var(--muted);font-size:13px}
+.or::before,.or::after{content:"";flex:1;height:2px;background:var(--soft)}
+.note{font-size:13px;color:var(--muted);text-align:center}
+.note a{font-weight:700;color:var(--ink)}
+@media (max-width:860px){
+  .login{grid-template-columns:1fr}
+  .pitch{padding-right:max(16px, env(safe-area-inset-right,0px));padding-left:max(16px, env(safe-area-inset-left,0px));gap:20px;padding-block:24px}
+  .pitch ul,.coin,.pitch .foot{display:none}
+  .card{padding:24px}
+}
+</style>
+</head>
+<body>
+<div class="login">
+  <aside class="pitch">
+    <div class="blob b1"></div><div class="blob b2"></div>
+    <a class="logo" href="index.html"><i>M</i><span class="logo-txt">Mimetism<small>Programme partenaires</small></span></a>
+    <div>
+      <h1>Ton espace pour <span>suivre tes ventes</span> et tes commissions.</h1>
+      <ul>
+        <li><b>€</b>Tes commissions et tes prochains virements</li>
+        <li><b>↗</b>Ta performance mois par mois</li>
+        <li><b>✓</b>Tes prospects, du premier appel à la signature</li>
+      </ul>
+    </div>
+    <div class="coin"><span><b>1 500 €</b>par vente</span></div>
+    <p class="foot">© 2026 Mimetism · Programme partenaires de Mimetism</p>
+  </aside>
+
+  <main class="formside">
+    <form class="card" id="loginForm" novalidate>
+      <span class="demo-badge">◎ Version de démonstration</span>
+      <h2>Content de te revoir</h2>
+      <p class="sub">Connecte-toi à ton espace partenaire.</p>
+      <label class="field" for="email">Email
+        <input id="email" type="email" autocomplete="username" value="camille.martin@exemple.fr">
+      </label>
+      <label class="field" for="pwd">Mot de passe
+        <input id="pwd" type="password" autocomplete="current-password" placeholder="Pas besoin pour la démo">
+      </label>
+      <div class="row">
+        <label for="remember"><input id="remember" type="checkbox" checked> Rester connecté</label>
+        <a href="#" id="forgot">Mot de passe oublié ?</a>
+      </div>
+      <button class="btn primary" type="submit">Accéder à mon espace →</button>
+      <div class="or">démo</div>
+      <p class="note">Aucun identifiant n'est vérifié : le bouton ouvre directement l'espace avec des données d'exemple.</p>
+      <p class="note">Pas encore partenaire ? <a href="index.html#rejoindre">Rejoindre le programme</a></p>
+    </form>
+  </main>
+</div>
+<div class="toast" id="toast" role="status"></div>
+<script>
+document.getElementById('loginForm').addEventListener('submit', e => {
+  e.preventDefault();
+  location.href = 'espace.html';
+});
+document.getElementById('forgot').addEventListener('click', e => {
+  e.preventDefault();
+  const t = document.getElementById('toast');
+  t.textContent = 'Démo : la réinitialisation du mot de passe arrivera avec l\'application.';
+  t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 2800);
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,616 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Espace Partenaire Mimetism</title>
+<meta name="description" content="Espace partenaire Mimetism (démo) : ventes, commissions, prospects et paiements.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700;900&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700&family=Space+Mono:wght@400;700&display=swap">
+<link rel="stylesheet" href="partenaire.css">
+<style>
+/* Layout : barre latérale sombre + zone de travail en cartes à bord épais ; résumé en haut, détail en dessous */
+.app{display:grid;grid-template-columns:250px 1fr;min-height:100vh;min-height:100dvh}
+.side{background:var(--side);color:var(--side-fg);padding:24px 16px;padding-left:max(16px, env(safe-area-inset-left,0px));display:flex;flex-direction:column;gap:28px;position:sticky;top:0;height:100vh;height:100dvh}
+.nav{display:flex;flex-direction:column;gap:4px}
+.nav a{display:flex;align-items:center;gap:12px;padding:11px 12px;border-radius:12px;text-decoration:none;color:var(--side-muted);font-weight:700;font-size:15px;transition:background .15s,color .15s,transform .2s}
+.nav a svg{flex:none;width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.nav a:hover{color:var(--side-fg);transform:translateX(3px)}
+.nav a.on{background:var(--yellow);color:#17132A}
+.nav a .count{margin-left:auto;font:700 11px var(--f-mono);background:var(--pink);color:#17132A;border-radius:99px;padding:2px 7px}
+.me{margin-top:auto;display:flex;align-items:center;gap:10px;padding:12px;border:2px solid #3A3354;border-radius:14px}
+.me .av{flex:none;width:38px;height:38px;border-radius:50%;background:conic-gradient(var(--pink),var(--yellow),var(--mint),var(--blue),var(--pink));border:2px solid var(--side-fg)}
+.me div{min-width:0;font-size:13px;line-height:1.3}
+.me b{display:block;font-size:14px}
+.me span{color:var(--side-muted)}
+.me a{margin-left:auto;color:var(--side-muted);font-size:12px}
+
+main{min-width:0;padding-block:24px 60px;padding-left:max(16px, min(4vw,40px));padding-right:max(16px, env(safe-area-inset-right,0px), min(4vw,40px))}
+.top{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap;margin-bottom:26px}
+.top h1{font-size:clamp(24px,3vw,34px);font-weight:900}
+.top p{color:var(--muted);margin-top:6px}
+.top .actions{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+
+.view{display:flex;flex-direction:column;gap:20px;animation:viewin .4s cubic-bezier(.2,1.2,.4,1)}
+@keyframes viewin{from{opacity:0;transform:translateY(14px)}}
+.card{background:var(--surface);border:2.5px solid var(--line);border-radius:var(--r);padding:20px;min-width:0}
+.card h2{font-size:17px;font-weight:700}
+.card-head{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:16px}
+.card-head p{color:var(--muted);font-size:14px}
+
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+.kpi{position:relative;overflow:hidden;display:flex;flex-direction:column;gap:6px}
+.kpi .v{font:900 clamp(24px,2.6vw,32px)/1.1 var(--f-display);font-variant-numeric:tabular-nums}
+.kpi .d{font-size:13px;color:var(--muted)}
+.kpi.hero{background:var(--yellow);color:#17132A;box-shadow:5px 5px 0 var(--sh)}
+.kpi.hero .label,.kpi.hero .d{color:#17132A;opacity:.75}
+.kpi .tagup{align-self:flex-start;font:700 12px var(--f-mono);padding:3px 8px;border-radius:99px;background:var(--mint);color:#17132A;border:1.5px solid #17132A}
+
+.grid2{display:grid;grid-template-columns:1.6fr 1fr;gap:20px}
+.grid2b{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+
+/* graphique */
+.chart{position:relative}
+.chart svg{display:block;width:100%;height:auto;overflow:visible}
+.chart .grid line{stroke:var(--soft);stroke-width:1}
+.chart .ax{fill:var(--muted);font:500 12px var(--f-body)}
+.chart .bar{fill:var(--blue);transition:opacity .15s}
+.chart .bar.cur{fill:url(#hatch);stroke:var(--blue);stroke-width:2}
+.chart .hit{fill:transparent;cursor:default}
+.chart .hit:hover + .bar, .chart .bar.hl{opacity:.75}
+.chart .lab{fill:var(--ink);font:700 12px var(--f-mono)}
+.tip{position:absolute;pointer-events:none;background:var(--ink);color:var(--bg);padding:8px 11px;border-radius:10px;font-size:13px;line-height:1.35;transform:translate(-50%,-110%);white-space:nowrap;opacity:0;transition:opacity .12s}
+.tip b{font-family:var(--f-mono)}
+.legend{display:flex;gap:16px;flex-wrap:wrap;font-size:13px;color:var(--muted);margin-top:10px}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.legend i{width:12px;height:12px;border-radius:3px;background:var(--blue);display:inline-block}
+.legend i.h{background:repeating-linear-gradient(45deg,var(--blue) 0 2px,transparent 2px 5px);border:1.5px solid var(--blue)}
+
+/* objectif */
+.goal{display:flex;flex-direction:column;gap:14px}
+.goal .big{font:900 34px/1 var(--f-display)}
+.goal .big small{font-size:16px;color:var(--muted)}
+.progress{height:18px;border:2.5px solid var(--line);border-radius:99px;overflow:hidden;background:var(--soft)}
+.progress i{display:block;height:100%;background:repeating-linear-gradient(-45deg,var(--pink) 0 10px,#ff77aa 10px 20px);border-right:2.5px solid var(--line);animation:fill 1.2s cubic-bezier(.2,1,.3,1) both;background-size:28px 28px}
+@keyframes fill{from{width:0!important}}
+.goal p{color:var(--muted);font-size:14px}
+.ref{display:flex;gap:8px;align-items:center;flex-wrap:wrap;padding:12px;border:2px dashed var(--line);border-radius:14px}
+.ref code{font:700 15px var(--f-mono);flex:1;min-width:0;word-break:break-all}
+
+/* répartition par pack */
+.hbars{display:grid;gap:12px}
+.hbar{display:grid;grid-template-columns:72px 1fr 58px;align-items:center;gap:10px;font-size:14px}
+.hbar b{font-weight:700}
+.hbar .track{height:14px;background:var(--soft);border-radius:99px;overflow:hidden}
+.hbar .track i{display:block;height:100%;background:var(--blue);border-radius:0 4px 4px 0;transition:width .6s cubic-bezier(.2,1,.3,1)}
+.hbar span{font:700 13px var(--f-mono);text-align:right;color:var(--muted)}
+
+/* activité */
+.feed{display:grid;gap:4px;list-style:none;margin:0;padding:0}
+.feed li{display:flex;gap:12px;align-items:center;padding:10px 4px;border-bottom:1.5px solid var(--soft);font-size:14px}
+.feed li:last-child{border-bottom:0}
+.feed .ic{flex:none;width:32px;height:32px;border-radius:10px;display:grid;place-items:center;border:2px solid var(--line);font:700 13px var(--f-mono);color:#17132A}
+.feed .t{flex:1;min-width:0}
+.feed .t small{display:block;color:var(--muted);font-size:12px}
+.feed .amt{font:700 13px var(--f-mono);white-space:nowrap}
+
+/* statuts */
+.pill{display:inline-flex;align-items:center;gap:6px;font:700 12px var(--f-body);padding:4px 10px;border-radius:99px;border:1.5px solid var(--line);white-space:nowrap;color:#17132A}
+.pill.paid{background:var(--mint)}
+.pill.ok{background:var(--yellow)}
+.pill.wait{background:var(--soft);color:var(--ink)}
+
+/* table */
+.filters{display:flex;gap:8px;flex-wrap:wrap}
+.chip{font:700 13px var(--f-body);padding:8px 13px;border-radius:99px;border:2px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+.chip .n{font-family:var(--f-mono);opacity:.7;margin-left:4px}
+.tablewrap{overflow-x:auto;margin:0 -4px}
+table{width:100%;border-collapse:collapse;font-size:14px;min-width:620px}
+th{text-align:left;font:700 11px var(--f-mono);letter-spacing:.1em;text-transform:uppercase;color:var(--muted);padding:10px 8px;border-bottom:2px solid var(--line)}
+td{padding:12px 8px;border-bottom:1.5px solid var(--soft);vertical-align:middle}
+td.num,th.num{text-align:right;font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+tr.new td{animation:flash 1.6s}
+@keyframes flash{0%,40%{background:color-mix(in srgb, var(--yellow) 55%, transparent)}}
+.packtag{font:700 12px var(--f-mono)}
+tfoot td{font-weight:700;border-bottom:0}
+
+/* prospects */
+.board{display:grid;grid-template-columns:repeat(4,minmax(220px,1fr));gap:14px;overflow-x:auto;padding-bottom:6px}
+.col{background:var(--soft);border-radius:var(--r);padding:12px;display:flex;flex-direction:column;gap:10px;min-height:200px}
+.col h3{font:700 14px var(--f-body);display:flex;justify-content:space-between;align-items:center;padding:2px 4px}
+.col h3 span{font:700 12px var(--f-mono);background:var(--surface);border:1.5px solid var(--line);border-radius:99px;padding:1px 8px}
+.pc{background:var(--surface);border:2px solid var(--line);border-radius:14px;padding:12px;display:flex;flex-direction:column;gap:6px;animation:viewin .35s cubic-bezier(.2,1.3,.4,1)}
+.pc b{font-size:15px}
+.pc .meta{font-size:13px;color:var(--muted)}
+.pc .next{font-size:13px;display:flex;gap:6px;align-items:center}
+.pc .next::before{content:"→";font-weight:700;color:var(--pink)}
+.pc .btn{align-self:flex-start;margin-top:4px}
+
+/* paiements */
+.pay-sum{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.nextpay{background:var(--mint);color:#17132A;box-shadow:5px 5px 0 var(--sh)}
+.nextpay .label{color:#17132A;opacity:.7}
+
+/* ressources */
+.res{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.res .card{display:flex;flex-direction:column;gap:10px;transition:transform .2s}
+.res .card:hover{transform:translateY(-4px) rotate(-.5deg)}
+.res .ico{width:46px;height:46px;border-radius:14px;border:2.5px solid var(--line);display:grid;place-items:center;font:900 18px var(--f-display);color:#17132A}
+.res p{color:var(--muted);font-size:14px;flex:1}
+
+/* profil */
+.form{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.form .full{grid-column:1/-1}
+.ok-line{display:flex;gap:10px;align-items:center;font-size:14px}
+
+/* modale */
+dialog{border:3px solid var(--line);border-radius:24px;padding:0;background:var(--surface);color:var(--ink);box-shadow:8px 8px 0 var(--sh);width:min(460px, calc(100% - 32px))}
+dialog::backdrop{background:rgba(23,19,42,.55);backdrop-filter:blur(3px)}
+dialog form{padding:26px;display:flex;flex-direction:column;gap:16px}
+dialog h2{font-size:22px}
+dialog .hint{font-size:13px;color:var(--muted)}
+.dlg-actions{display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap}
+.seg{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.seg button{font:700 13px var(--f-body);padding:10px 4px;border:2px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink);cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--pink);color:#17132A}
+#confetti{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:70}
+
+@media (max-width:1100px){.kpis{grid-template-columns:repeat(2,1fr)}.res{grid-template-columns:repeat(2,1fr)}}
+@media (max-width:900px){
+  .app{grid-template-columns:1fr}
+  .side{position:sticky;top:0;height:auto;z-index:20;flex-direction:row;align-items:center;gap:12px;padding:10px 16px;padding-left:max(16px, env(safe-area-inset-left,0px));padding-right:max(16px, env(safe-area-inset-right,0px));overflow-x:auto}
+  .side .logo-txt small,.me{display:none}
+  .nav{flex-direction:row;gap:4px}
+  .nav a{padding:9px 11px;font-size:14px;white-space:nowrap}
+  .nav a svg{display:none}
+  .grid2,.grid2b,.pay-sum{grid-template-columns:1fr}
+  main{padding-left:max(16px, env(safe-area-inset-left,0px));padding-right:max(16px, env(safe-area-inset-right,0px))}
+}
+@media (max-width:560px){.kpis,.res,.form{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="side">
+    <a class="logo" href="index.html"><i>M</i><span class="logo-txt">Mimetism<small>Espace partenaire</small></span></a>
+    <nav class="nav" aria-label="Sections de l'espace">
+      <a href="#tableau" data-view="tableau"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="9" rx="2"/><rect x="14" y="3" width="7" height="5" rx="2"/><rect x="14" y="12" width="7" height="9" rx="2"/><rect x="3" y="16" width="7" height="5" rx="2"/></svg>Tableau de bord</a>
+      <a href="#ventes" data-view="ventes"><svg viewBox="0 0 24 24"><path d="M6 2h12v20l-3-2-3 2-3-2-3 2z"/><path d="M9 8h6M9 12h6"/></svg>Mes ventes</a>
+      <a href="#prospects" data-view="prospects"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="4"/><path d="M2 21c0-4 3-6 7-6s7 2 7 6"/><path d="M17 4a4 4 0 0 1 0 8M22 21c0-3-2-5-4-5.6"/></svg>Prospects<span class="count" id="navProspects">0</span></a>
+      <a href="#paiements" data-view="paiements"><svg viewBox="0 0 24 24"><rect x="2" y="6" width="20" height="14" rx="3"/><path d="M2 10h20M16 15h2"/></svg>Paiements</a>
+      <a href="#ressources" data-view="ressources"><svg viewBox="0 0 24 24"><path d="M4 4h6a3 3 0 0 1 3 3v13a2 2 0 0 0-2-2H4z"/><path d="M20 4h-6a3 3 0 0 0-1 .2V20a2 2 0 0 1 2-2h5z"/></svg>Kit de vente</a>
+      <a href="#profil" data-view="profil"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>Mon profil</a>
+    </nav>
+    <div class="me">
+      <div class="av"></div>
+      <div><b>Camille Martin</b><span>Agent commercial</span></div>
+      <a href="connexion.html" title="Se déconnecter">Sortir</a>
+    </div>
+  </aside>
+
+  <main>
+    <div class="top">
+      <div>
+        <h1 id="viewTitle">Salut Camille !</h1>
+        <p id="viewSub">Voici où tu en es ce mois-ci.</p>
+      </div>
+      <div class="actions">
+        <span class="demo-badge">◎ Démo · données fictives</span>
+        <button class="btn primary" type="button" id="openSale">+ Déclarer une vente</button>
+      </div>
+    </div>
+
+    <!-- TABLEAU DE BORD -->
+    <section class="view" id="v-tableau">
+      <div class="kpis">
+        <div class="card kpi hero"><span class="label">Commissions 2026</span><span class="v" id="kTotal">–</span><span class="d" id="kTotalD">–</span></div>
+        <div class="card kpi"><span class="label">Ventes en novembre</span><span class="v" id="kMonth">–</span><span class="d" id="kMonthD">–</span></div>
+        <div class="card kpi"><span class="label">Prochain virement</span><span class="v" id="kNext">–</span><span class="d" id="kNextD">–</span></div>
+        <div class="card kpi"><span class="label">Taux de signature</span><span class="v" id="kRate">–</span><span class="d" id="kRateD">–</span></div>
+      </div>
+
+      <div class="grid2">
+        <div class="card">
+          <div class="card-head"><h2>Ventes signées par mois</h2><p>Juin à novembre 2026</p></div>
+          <div class="chart" id="chart"><div class="tip" id="tip"></div></div>
+          <div class="legend"><span><i></i>Mois terminé</span><span><i class="h"></i>Mois en cours</span></div>
+        </div>
+        <div class="card goal">
+          <div class="card-head" style="margin:0"><h2>Objectif de novembre</h2></div>
+          <div class="big"><span id="gDone">3</span> <small>/ <span id="gTarget">5</span> ventes</small></div>
+          <div class="progress" role="progressbar" aria-label="Progression de l'objectif" id="gBar"><i id="gFill"></i></div>
+          <p id="gText">–</p>
+          <div>
+            <div class="label" style="margin-bottom:8px">Ton code partenaire</div>
+            <div class="ref"><code id="refCode">MIM-CAMILLE-42</code><button class="btn small" type="button" id="copyRef">Copier</button></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid2b">
+        <div class="card">
+          <div class="card-head"><h2>Ventes par pack</h2><p>Depuis juin</p></div>
+          <div class="hbars" id="packBars"></div>
+          <p style="margin-top:14px;font-size:13px;color:var(--muted)">Même commission sur chaque pack : 1 500 € par vente.</p>
+        </div>
+        <div class="card">
+          <div class="card-head"><h2>Activité récente</h2><a href="#ventes" style="font-size:14px;font-weight:700">Tout voir →</a></div>
+          <ul class="feed" id="feed"></ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- VENTES -->
+    <section class="view" id="v-ventes" hidden>
+      <div class="card">
+        <div class="card-head">
+          <div class="filters" role="group" aria-label="Filtrer par statut" id="filters"></div>
+        </div>
+        <div class="tablewrap">
+          <table>
+            <thead><tr><th>Date</th><th>Client</th><th>Ville</th><th>Pack</th><th class="num">Commission</th><th>Statut</th></tr></thead>
+            <tbody id="salesBody"></tbody>
+            <tfoot><tr><td colspan="4" id="footLbl">Total</td><td class="num" id="footSum">–</td><td></td></tr></tfoot>
+          </table>
+        </div>
+      </div>
+      <div class="card" style="display:flex;gap:18px;flex-wrap:wrap;font-size:14px;color:var(--muted)">
+        <span><span class="pill wait">◷ En attente</span> vente déclarée, en cours de vérification</span>
+        <span><span class="pill ok">● Validée</span> contrat confirmé, paiement programmé</span>
+        <span><span class="pill paid">✓ Payée</span> commission versée</span>
+      </div>
+    </section>
+
+    <!-- PROSPECTS -->
+    <section class="view" id="v-prospects" hidden>
+      <div class="board" id="board"></div>
+    </section>
+
+    <!-- PAIEMENTS -->
+    <section class="view" id="v-paiements" hidden>
+      <div class="pay-sum">
+        <div class="card kpi nextpay"><span class="label">Prochain virement</span><span class="v" id="pNext">–</span><span class="d" id="pNextD" style="color:#17132A;opacity:.75">–</span></div>
+        <div class="card kpi"><span class="label">Déjà versé en 2026</span><span class="v" id="pPaid">–</span><span class="d" id="pPaidD">–</span></div>
+        <div class="card kpi"><span class="label">En attente de validation</span><span class="v" id="pWait">–</span><span class="d" id="pWaitD">–</span></div>
+      </div>
+      <div class="card">
+        <div class="card-head"><h2>Historique des virements</h2><p>Exemple de règle : versement le 10 du deuxième mois suivant la vente</p></div>
+        <div class="tablewrap">
+          <table>
+            <thead><tr><th>Date</th><th>Ventes du mois de</th><th class="num">Ventes</th><th class="num">Montant</th><th>Statut</th></tr></thead>
+            <tbody id="payBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- RESSOURCES -->
+    <section class="view" id="v-ressources" hidden>
+      <div class="res">
+        <div class="card"><div class="ico" style="background:var(--yellow)">P</div><h2>Plaquette des 4 packs</h2><p>Bronze, Silver, Gold, Diamant : la fiche à montrer à ton prospect.</p><button class="btn small res-btn" type="button">Ouvrir</button></div>
+        <div class="card"><div class="ico" style="background:var(--mint)">A</div><h2>Argumentaire SEO</h2><p>Expliquer le référencement naturel en 2 minutes, sans jargon.</p><button class="btn small res-btn" type="button">Ouvrir</button></div>
+        <div class="card"><div class="ico" style="background:var(--pink)">S</div><h2>Script d'appel</h2><p>La trame du premier appel et de la prise de rendez-vous.</p><button class="btn small res-btn" type="button">Ouvrir</button></div>
+        <div class="card"><div class="ico" style="background:var(--blue);color:#fff">O</div><h2>Réponses aux objections</h2><p>« C'est trop cher », « J'ai déjà un site », « Je n'ai pas le temps »…</p><button class="btn small res-btn" type="button">Ouvrir</button></div>
+        <div class="card"><div class="ico" style="background:var(--orange)">Q</div><h2>Quel pack pour qui ?</h2><p>Commerce de proximité, artisan de l'habitat, PME B2B : le bon choix.</p><button class="btn small res-btn" type="button">Ouvrir</button></div>
+        <div class="card"><div class="ico" style="background:var(--soft);color:var(--ink)">C</div><h2>Contrat partenaire</h2><p>Tes conditions de commission et de versement.</p><button class="btn small res-btn" type="button">Ouvrir</button></div>
+      </div>
+    </section>
+
+    <!-- PROFIL -->
+    <section class="view" id="v-profil" hidden>
+      <form class="card" id="profileForm">
+        <div class="card-head"><h2>Mes informations</h2><p>Utilisées pour tes factures de commission</p></div>
+        <div class="form">
+          <label class="field" for="pFirst">Prénom<input id="pFirst" value="Camille"></label>
+          <label class="field" for="pLast">Nom<input id="pLast" value="Martin"></label>
+          <label class="field" for="pMail">Email<input id="pMail" type="email" value="camille.martin@exemple.fr"></label>
+          <label class="field" for="pPhone">Téléphone<input id="pPhone" value="06 00 00 00 00"></label>
+          <label class="field" for="pStatus">Statut
+            <select id="pStatus"><option selected>Agent commercial</option><option>Business developer</option><option>Commercial freelance</option><option>Indépendant</option></select>
+          </label>
+          <label class="field" for="pZone">Zone de prospection<input id="pZone" value="Hauts-de-France"></label>
+          <label class="field" for="pSiret">SIRET<input id="pSiret" value="000 000 000 00000"></label>
+          <div class="field full"><span>Coordonnées bancaires</span><div class="ok-line"><span class="pill paid">✓ Renseignées</span> IBAN se terminant par •••• 0000</div></div>
+        </div>
+        <div style="margin-top:20px"><button class="btn yellow" type="submit">Enregistrer</button></div>
+      </form>
+    </section>
+  </main>
+</div>
+
+<dialog id="saleDlg">
+  <form method="dialog" id="saleForm">
+    <h2>Déclarer une vente</h2>
+    <p class="hint">La vente passe en « En attente » le temps que l'équipe Mimetism la vérifie.</p>
+    <label class="field" for="sClient">Entreprise cliente<input id="sClient" placeholder="Boulangerie Dupont" required></label>
+    <label class="field" for="sCity">Ville<input id="sCity" placeholder="Lille" required></label>
+    <div class="field"><span id="sPackLbl">Pack signé</span>
+      <div class="seg" role="group" aria-labelledby="sPackLbl" id="sPack">
+        <button type="button" data-p="Bronze" aria-pressed="false">Bronze</button>
+        <button type="button" data-p="Silver" aria-pressed="false">Silver</button>
+        <button type="button" data-p="Gold" aria-pressed="true">Gold</button>
+        <button type="button" data-p="Diamant" aria-pressed="false">Diamant</button>
+      </div>
+    </div>
+    <div class="dlg-actions">
+      <button class="btn ghost" type="button" id="cancelSale">Annuler</button>
+      <button class="btn primary" type="submit" id="confirmSale">Déclarer la vente · 1 500 €</button>
+    </div>
+  </form>
+</dialog>
+<div class="toast" id="toast" role="status"></div>
+<canvas id="confetti" aria-hidden="true"></canvas>
+
+<script>
+(function(){
+  const COMMISSION = 1500;
+  const TODAY = new Date('2026-11-12T12:00:00');
+  const RDV_COUNT = 52; // rendez-vous réalisés depuis juin (exemple)
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const eur = n => n.toLocaleString('fr-FR').replace(/ /g,' ') + ' €';
+  const fdate = d => new Date(d+'T12:00:00').toLocaleDateString('fr-FR',{day:'numeric',month:'short'});
+  const MONTHS = ['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
+  const SHORT = ['janv.','févr.','mars','avr.','mai','juin','juil.','août','sept.','oct.','nov.','déc.'];
+
+  // Données d'exemple
+  const sales = [
+    ['2026-06-09','Boulangerie Lemaire','Lille','Bronze'],
+    ['2026-06-23','Garage Moreau','Amiens','Silver'],
+    ['2026-07-04','Atelier Bois & Co','Rouen','Silver'],
+    ['2026-07-16','Cabinet Durand Avocats','Paris','Gold'],
+    ['2026-07-28','Fleurs de Lys','Beauvais','Bronze'],
+    ['2026-08-08','Toitures Bernard','Compiègne','Diamant'],
+    ['2026-08-27','Pizzeria Da Marco','Lille','Bronze'],
+    ['2026-09-03','Plomberie Petit','Arras','Silver'],
+    ['2026-09-12','Transports Leroy','Douai','Gold'],
+    ['2026-09-19','Institut Belle Peau','Lens','Bronze'],
+    ['2026-09-30','Menuiserie Fabre','Saint-Quentin','Silver'],
+    ['2026-10-02','Groupe Nordis Conseil','Lille','Gold'],
+    ['2026-10-09','Électricité Gomez','Roubaix','Silver'],
+    ['2026-10-15','Rénov Habitat 59','Tourcoing','Diamant'],
+    ['2026-10-22','Café des Arts','Valenciennes','Bronze'],
+    ['2026-10-29','Logistique Vasseur','Calais','Gold'],
+    ['2026-11-03','Optique Marchand','Dunkerque','Bronze'],
+    ['2026-11-06','Paysages Dubois','Béthune','Silver'],
+    ['2026-11-10','Clinique Vétérinaire du Parc','Lille','Gold']
+  ].map(([date,client,city,pack]) => ({date,client,city,pack}));
+
+  const prospects = [
+    {n:'Boucherie Caron',c:'Lille',p:'Bronze',s:0,next:'Premier appel jeudi'},
+    {n:'Auto-École Prime',c:'Lens',p:'Bronze',s:0,next:'Envoyer un email de présentation'},
+    {n:'Maçonnerie Lefèvre',c:'Arras',p:'Diamant',s:0,next:'Relancer après le salon'},
+    {n:'Cabinet Kiné Lambert',c:'Douai',p:'Bronze',s:1,next:'RDV le 14 nov. à 10 h'},
+    {n:'Cuisines Delattre',c:'Roubaix',p:'Silver',s:1,next:'RDV le 18 nov. à 15 h'},
+    {n:'Agence Immo Flandres',c:'Lille',p:'Gold',s:2,next:'Proposition envoyée le 7 nov.'},
+    {n:'Chauffage Morel',c:'Valenciennes',p:'Silver',s:2,next:'Rappeler lundi'},
+    {n:'Groupe Hexa Services',c:'Lille',p:'Gold',s:3,next:'Signature prévue le 15 nov.'}
+  ];
+  const STAGES = ['À contacter','RDV planifié','Proposition envoyée','Négociation'];
+
+  function statusOf(s){
+    const d = new Date(s.date+'T12:00:00');
+    const monthsAgo = (TODAY.getFullYear()-d.getFullYear())*12 + TODAY.getMonth()-d.getMonth();
+    if (s.pending || monthsAgo === 0) return 'wait';
+    if (monthsAgo === 1) return 'ok';
+    return 'paid';
+  }
+  const PILL = {wait:'<span class="pill wait">◷ En attente</span>', ok:'<span class="pill ok">● Validée</span>', paid:'<span class="pill paid">✓ Payée</span>'};
+  const monthKey = s => s.date.slice(0,7);
+
+  // ---------- Tableau de bord
+  function renderDashboard(){
+    const total = sales.length*COMMISSION;
+    const cur = sales.filter(s => monthKey(s)==='2026-11').length;
+    const prev = sales.filter(s => monthKey(s)==='2026-10').length;
+    set('kTotal', eur(total)); set('kTotalD', sales.length+' ventes signées depuis juin');
+    set('kMonth', String(cur)); set('kMonthD', eur(cur*COMMISSION)+' en attente de validation');
+    const okSum = sales.filter(s=>statusOf(s)==='ok').length*COMMISSION;
+    set('kNext', eur(okSum)); set('kNextD', 'le 10 décembre · ventes d\'octobre');
+    set('kRate', Math.round(sales.length/RDV_COUNT*100)+' %'); set('kRateD', sales.length+' ventes pour '+RDV_COUNT+' rendez-vous');
+
+    const target = 5;
+    set('gDone', cur); set('gTarget', target);
+    const pct = Math.min(100, cur/target*100);
+    document.getElementById('gFill').style.width = pct+'%';
+    document.getElementById('gBar').setAttribute('aria-valuenow', Math.round(pct));
+    set('gText', cur>=target ? 'Objectif atteint, bravo ! Chaque vente en plus, c\'est 1 500 € de plus.' : 'Plus que '+(target-cur)+' vente'+(target-cur>1?'s':'')+' pour atteindre ton objectif, soit '+eur((target-cur)*COMMISSION)+' de plus.');
+
+    // répartition par pack (une seule teinte, étiquettes directes)
+    const packs = ['Bronze','Silver','Gold','Diamant'];
+    const counts = packs.map(p => sales.filter(s=>s.pack===p).length);
+    const max = Math.max(...counts);
+    document.getElementById('packBars').innerHTML = packs.map((p,i) =>
+      `<div class="hbar"><b>${p}</b><div class="track"><i style="width:${counts[i]/max*100}%"></i></div><span>${counts[i]} vente${counts[i]>1?'s':''}</span></div>`).join('');
+
+    // activité
+    const events = [];
+    [...sales].sort((a,b)=>b.date.localeCompare(a.date)).slice(0,4).forEach(s => events.push({d:s.date, ic:'✓', c:'var(--mint)', t:'Vente signée · '+s.client, sub:'Pack '+s.pack+' · '+s.city, a:'+'+eur(COMMISSION)}));
+    events.push({d:'2026-11-10', ic:'€', c:'var(--yellow)', t:'Virement reçu', sub:'Ventes de septembre', a:eur(sales.filter(s=>monthKey(s)==='2026-09').length*COMMISSION)});
+    events.sort((a,b)=>b.d.localeCompare(a.d));
+    document.getElementById('feed').innerHTML = events.slice(0,5).map(e =>
+      `<li><span class="ic" style="background:${e.c}">${e.ic}</span><span class="t">${esc(e.t)}<small>${fdate(e.d)} · ${esc(e.sub)}</small></span><span class="amt">${e.a}</span></li>`).join('');
+
+    drawChart();
+  }
+
+  function drawChart(){
+    const keys = ['2026-06','2026-07','2026-08','2026-09','2026-10','2026-11'];
+    const vals = keys.map(k => sales.filter(s=>monthKey(s)===k).length);
+    const W=600,H=250,L=34,R=8,T=18,B=30;
+    const top = Math.max(6, Math.ceil(Math.max(...vals)/2)*2);
+    const y = v => T + (H-T-B)*(1 - v/top);
+    const band = (W-L-R)/keys.length, bw = Math.min(56, band*.56);
+    let g = '<defs><pattern id="hatch" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="2.5" height="6" fill="var(--blue)"/></pattern></defs><g class="grid">';
+    for(let v=0; v<=top; v+=2){ g += `<line x1="${L}" x2="${W-R}" y1="${y(v)}" y2="${y(v)}"/><text class="ax" x="${L-8}" y="${y(v)+4}" text-anchor="end">${v}</text>`; }
+    g += '</g>';
+    keys.forEach((k,i) => {
+      const x = L + band*i + (band-bw)/2, h = y(0)-y(vals[i]), r = Math.min(4,h);
+      const yy = y(vals[i]); const cur = i===keys.length-1;
+      const path = h>0 ? `M${x},${y(0)} V${yy+r} Q${x},${yy} ${x+r},${yy} H${x+bw-r} Q${x+bw},${yy} ${x+bw},${yy+r} V${y(0)} Z` : '';
+      const m = +k.slice(5)-1;
+      g += `<rect class="hit" data-i="${i}" x="${L+band*i}" y="${T}" width="${band}" height="${H-T-B}"/>`;
+      g += `<path class="bar${cur?' cur':''}" data-i="${i}" d="${path}"/>`;
+      g += `<text class="ax" x="${x+bw/2}" y="${H-8}" text-anchor="middle">${SHORT[m]}</text>`;
+      if (cur || vals[i]===Math.max(...vals)) g += `<text class="lab" x="${x+bw/2}" y="${yy-7}" text-anchor="middle">${vals[i]}</text>`;
+    });
+    const box = document.getElementById('chart');
+    box.querySelectorAll('svg').forEach(s=>s.remove());
+    box.insertAdjacentHTML('afterbegin', `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Ventes signées par mois, de juin à novembre 2026 : ${vals.join(', ')}">${g}</svg>`);
+    const tip = document.getElementById('tip'), svg = box.querySelector('svg');
+    svg.querySelectorAll('.hit').forEach(h => {
+      h.addEventListener('pointerenter', () => {
+        const i = +h.dataset.i, m = +keys[i].slice(5)-1;
+        svg.querySelectorAll('.bar').forEach(b=>b.classList.toggle('hl', +b.dataset.i===i));
+        tip.innerHTML = `${MONTHS[m]} 2026${i===keys.length-1?' (en cours)':''}<br><b>${vals[i]} ventes</b> · <b>${eur(vals[i]*COMMISSION)}</b>`;
+        const sx = svg.getBoundingClientRect().width / W;
+        const x = (L + band*i + band/2)*sx, yy = y(vals[i])*sx;
+        tip.style.left = x+'px'; tip.style.top = yy+'px'; tip.style.opacity = 1;
+      });
+      h.addEventListener('pointerleave', () => { tip.style.opacity = 0; svg.querySelectorAll('.bar').forEach(b=>b.classList.remove('hl')); });
+    });
+  }
+
+  // ---------- Ventes
+  let filter = 'all', lastAdded = null;
+  function renderSales(){
+    const counts = {all:sales.length, wait:0, ok:0, paid:0};
+    sales.forEach(s => counts[statusOf(s)]++);
+    const labels = [['all','Toutes'],['wait','En attente'],['ok','Validées'],['paid','Payées']];
+    document.getElementById('filters').innerHTML = labels.map(([k,l]) => `<button class="chip" type="button" data-f="${k}" aria-pressed="${filter===k}">${l}<span class="n">${counts[k]}</span></button>`).join('');
+    document.querySelectorAll('#filters .chip').forEach(c => c.addEventListener('click', () => { filter = c.dataset.f; renderSales(); }));
+    const rows = [...sales].sort((a,b)=>b.date.localeCompare(a.date)).filter(s => filter==='all' || statusOf(s)===filter);
+    document.getElementById('salesBody').innerHTML = rows.map(s =>
+      `<tr class="${s===lastAdded?'new':''}"><td>${fdate(s.date)}</td><td><b>${esc(s.client)}</b></td><td>${esc(s.city)}</td><td><span class="packtag">${s.pack}</span></td><td class="num">${eur(COMMISSION)}</td><td>${PILL[statusOf(s)]}</td></tr>`).join('');
+    set('footLbl', rows.length+' vente'+(rows.length>1?'s':''));
+    set('footSum', eur(rows.length*COMMISSION));
+  }
+
+  // ---------- Prospects
+  function renderBoard(){
+    document.getElementById('navProspects').textContent = prospects.length;
+    document.getElementById('board').innerHTML = STAGES.map((st,si) => {
+      const items = prospects.map((p,i)=>({...p,i})).filter(p=>p.s===si);
+      return `<div class="col"><h3>${st}<span>${items.length}</span></h3>${items.map(p =>
+        `<div class="pc"><b>${esc(p.n)}</b><span class="meta">${esc(p.c)} · Pack ${p.p} envisagé</span><span class="next">${esc(p.next)}</span>${
+          si<STAGES.length-1 ? `<button class="btn small ghost" type="button" data-move="${p.i}">Étape suivante →</button>` : `<button class="btn small primary" type="button" data-win="${p.i}">C'est signé !</button>`}</div>`).join('')}</div>`;
+    }).join('');
+    document.querySelectorAll('[data-move]').forEach(b => b.addEventListener('click', () => {
+      const p = prospects[+b.dataset.move]; p.s++;
+      p.next = ['','RDV à planifier','Proposition à envoyer','Relancer pour signature'][p.s];
+      renderBoard(); toast(p.n+' passe en « '+STAGES[p.s]+' »');
+    }));
+    document.querySelectorAll('[data-win]').forEach(b => b.addEventListener('click', () => {
+      const i = +b.dataset.win; openSale(prospects[i], i);
+    }));
+  }
+
+  // ---------- Paiements
+  function renderPayments(){
+    const byMonth = {};
+    sales.forEach(s => { const k = monthKey(s); byMonth[k] = (byMonth[k]||0)+1; });
+    const rows = Object.keys(byMonth).sort().reverse().map(k => {
+      const [yy,mm] = k.split('-').map(Number);
+      const pm = (mm-1+2)%12, py = yy + Math.floor((mm-1+2)/12);
+      const st = statusOf({date:k+'-15'});
+      return {pay:`10 ${MONTHS[pm]} ${py}`, from:`${MONTHS[mm-1]} ${yy}`, n:byMonth[k], st};
+    });
+    const lbl = {paid:'<span class="pill paid">✓ Versé</span>', ok:'<span class="pill ok">● Programmé</span>', wait:'<span class="pill wait">◷ Ventes en vérification</span>'};
+    document.getElementById('payBody').innerHTML = rows.map(r =>
+      `<tr><td>${r.pay}</td><td>${r.from}</td><td class="num">${r.n}</td><td class="num">${eur(r.n*COMMISSION)}</td><td>${lbl[r.st]}</td></tr>`).join('');
+    const sum = st => sales.filter(s=>statusOf(s)===st).length;
+    set('pNext', eur(sum('ok')*COMMISSION)); set('pNextD', 'le 10 décembre 2026 · '+sum('ok')+' ventes d\'octobre');
+    set('pPaid', eur(sum('paid')*COMMISSION)); set('pPaidD', sum('paid')+' ventes · 4 virements');
+    set('pWait', eur(sum('wait')*COMMISSION)); set('pWaitD', sum('wait')+' ventes de novembre');
+  }
+
+  // ---------- Navigation
+  const TITLES = {
+    tableau:['Salut Camille !','Voici où tu en es ce mois-ci.'],
+    ventes:['Mes ventes','Chaque vente signée te rapporte 1 500 €.'],
+    prospects:['Mes prospects','Fais avancer tes opportunités jusqu\'à la signature.'],
+    paiements:['Paiements','Tes commissions versées et à venir.'],
+    ressources:['Kit de vente','Tout ce qu\'il faut pour convaincre tes prospects.'],
+    profil:['Mon profil','Tes informations de partenaire.']
+  };
+  function route(){
+    const v = (location.hash||'#tableau').slice(1);
+    const view = TITLES[v] ? v : 'tableau';
+    document.querySelectorAll('.view').forEach(s => s.hidden = s.id !== 'v-'+view);
+    document.querySelectorAll('.nav a').forEach(a => a.classList.toggle('on', a.dataset.view===view));
+    set('viewTitle', TITLES[view][0]); set('viewSub', TITLES[view][1]);
+    if (view==='tableau') drawChart();
+  }
+  addEventListener('hashchange', () => { route(); scrollTo({top:0, behavior: reduce?'auto':'smooth'}); });
+
+  // ---------- Déclarer une vente
+  const dlg = document.getElementById('saleDlg');
+  let pack = 'Gold', fromProspect = null;
+  document.querySelectorAll('#sPack button').forEach(b => b.addEventListener('click', () => {
+    document.querySelectorAll('#sPack button').forEach(x=>x.setAttribute('aria-pressed','false'));
+    b.setAttribute('aria-pressed','true'); pack = b.dataset.p;
+  }));
+  function openSale(p, idx){
+    fromProspect = idx ?? null;
+    document.getElementById('sClient').value = p ? p.n : '';
+    document.getElementById('sCity').value = p ? p.c : '';
+    const want = p ? p.p : 'Gold';
+    document.querySelectorAll('#sPack button').forEach(b => { b.setAttribute('aria-pressed', String(b.dataset.p===want)); });
+    pack = want;
+    if (dlg.showModal) dlg.showModal(); else dlg.setAttribute('open','');
+  }
+  document.getElementById('openSale').addEventListener('click', () => openSale());
+  document.getElementById('cancelSale').addEventListener('click', () => dlg.close());
+  document.getElementById('saleForm').addEventListener('submit', e => {
+    e.preventDefault();
+    const client = document.getElementById('sClient').value.trim();
+    const city = document.getElementById('sCity').value.trim();
+    if (!client){ document.getElementById('sClient').focus(); return; }
+    if (!city){ document.getElementById('sCity').focus(); return; }
+    const s = {date:'2026-11-12', client, city, pack, pending:true};
+    sales.push(s); lastAdded = s;
+    if (fromProspect !== null) prospects.splice(fromProspect,1);
+    dlg.close();
+    renderAll();
+    confetti();
+    toast('Vente déclarée : +1 500 € en attente de validation');
+  });
+
+  // ---------- Divers
+  document.getElementById('copyRef').addEventListener('click', () => {
+    const code = document.getElementById('refCode').textContent;
+    const done = () => toast('Code copié : '+code);
+    if (navigator.clipboard) navigator.clipboard.writeText(code).then(done, () => { selectText(); toast('Sélectionné : fais Ctrl+C pour copier'); });
+    else { selectText(); toast('Sélectionné : fais Ctrl+C pour copier'); }
+  });
+  function selectText(){ const r = document.createRange(); r.selectNodeContents(document.getElementById('refCode')); const s = getSelection(); s.removeAllRanges(); s.addRange(r); }
+  document.querySelectorAll('.res-btn').forEach(b => b.addEventListener('click', () => toast('Démo : le document sera disponible dans l\'application.')));
+  document.getElementById('profileForm').addEventListener('submit', e => { e.preventDefault(); toast('Profil enregistré (démo)'); });
+
+  let tt;
+  function toast(msg){ const t = document.getElementById('toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(tt); tt = setTimeout(()=>t.classList.remove('show'), 2600); }
+  function set(id, v){ document.getElementById(id).textContent = v; }
+  function esc(s){ return String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+
+  const cv = document.getElementById('confetti'), ctx = cv.getContext('2d');
+  function confetti(){
+    if (reduce) return;
+    cv.width = innerWidth; cv.height = innerHeight;
+    const cols = ['#FFD43B','#FF4F8F','#2FDC9C','#3D5CFF','#FF7B22'];
+    const ps = Array.from({length:140}, () => ({x:innerWidth/2, y:innerHeight*.45, vx:(Math.random()-.5)*16, vy:-Math.random()*15-5, s:Math.random()*8+5, r:Math.random()*6, vr:(Math.random()-.5)*.3, c:cols[Math.random()*5|0]}));
+    let f = 0;
+    (function tick(){
+      ctx.clearRect(0,0,cv.width,cv.height);
+      ps.forEach(p => { p.vy += .45; p.x += p.vx; p.y += p.vy; p.r += p.vr; ctx.save(); ctx.translate(p.x,p.y); ctx.rotate(p.r); ctx.fillStyle = p.c; ctx.fillRect(-p.s/2,-p.s/3,p.s,p.s*.66); ctx.restore(); });
+      if (++f < 140) requestAnimationFrame(tick); else ctx.clearRect(0,0,cv.width,cv.height);
+    })();
+  }
+
+  function renderAll(){ renderDashboard(); renderSales(); renderBoard(); renderPayments(); }
+  renderAll(); route();
+  addEventListener('resize', () => { if (!document.getElementById('v-tableau').hidden) drawChart(); });
+})();
+</script>
+</body>
+</html>
